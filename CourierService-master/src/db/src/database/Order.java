@@ -11,7 +11,7 @@ public class Order {
 	
 	private int orderid,price,userid;
 	private String source,destination,pickupTime,deliveryType,details;
-	private Boolean isDeliverd,isAssigned,isPaid;
+	private boolean isDeliverd,isAssigned,isPaid;
 	
 	private int fragileCount,durableCount,otherCount;
 	
@@ -21,7 +21,8 @@ public class Order {
 	
 	public Order(String source,String destination,String deliveryType,String details, Connection myConn) {
 		this(myConn);setPrice(0);
-		this.isDeliverd=false;this.isAssigned=false;this.isPaid=false;
+		//System.out.println("isDelivered: "+this.isDeliverd); 
+		//this.isDeliverd=false;this.setIsAssigned(false);this.setIsPaid(false);
 		this.setSource(source);this.setDestination(destination);
 		this.setDeliveryType(deliveryType);this.setDetails(details);
 		
@@ -30,6 +31,11 @@ public class Order {
 		
 	}
 	
+	private void setIsDeliverd(boolean b) {
+		// TODO Auto-generated method stub
+		this.isDeliverd=b;
+	}
+
 	public boolean insertOrder() {
 		try {
 			myStmt = myConn.prepareStatement("insert into orders (destination,source,deliveryType,details)" 
@@ -150,6 +156,35 @@ public class Order {
 	public void setOtherCount(int otherCount) {
 		this.otherCount = otherCount;
 	}
+
+	public int getUserid() {
+		return userid;
+	}
+
+	public void setUserid(int userid) {
+		this.userid = userid;
+	}
+
+	public Boolean getIsPaid() {
+		return isPaid;
+	}
+
+	public void setIsPaid(Boolean isPaid) {
+		this.isPaid = isPaid;
+	}
+
+	public Boolean getIsAssigned() {
+		return isAssigned;
+	}
+
+	public void setIsAssigned(Boolean isAssigned) {
+		this.isAssigned = isAssigned;
+	}
+
+	public Boolean getIsDeliverd() {
+		return isDeliverd;
+	}
+
 
 	
 }

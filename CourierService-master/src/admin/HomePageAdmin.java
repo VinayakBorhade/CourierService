@@ -32,7 +32,6 @@ import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXTimePicker;
 
-import db.src.database.Users;
 import db.src.jdbcdemo.Driver;
 import db.src.database.*;
 
@@ -93,9 +92,18 @@ public class HomePageAdmin extends Application {
     Tab packetEstimation;
     Tab addEmp;
     
-    Connection primaryConn;
-    Statement st;
-    PreparedStatement pStmt;
+    static Connection primaryConn;
+    static Statement st;
+    static PreparedStatement pStmt;
+	
+    static List<Users> list_clients=new ArrayList<>();
+	static ObservableList<Users> data_clients;
+	static List<Order> list_orders=new ArrayList<>();
+	static ObservableList<Order> data_order;
+	static List<Employee> list_employee=new ArrayList<>();
+	private static ObservableList<Employee> data_emp;
+    
+    
     
     //Creating an object to pass to different scenes
     //But they should have the same stage otherwise
@@ -203,377 +211,7 @@ public class HomePageAdmin extends Application {
        gridPane.add(separator, 0, 1);
        gridPane.add(hBox, 0, 2);
        return gridPane;
-    }
-
-    public void newOrderTabScene()
-    {
-        /*
-            This function creates the gridPane for the neworder tab
-            in the tab pane.
-        */
-        GridPane gridPane = sampleGridPane();
-        
-
-        // Add address
-        JFXTextField textFieldDestinationAddress = new JFXTextField();
-        textFieldDestinationAddress.setPromptText("Destination Address");
-        textFieldDestinationAddress.setPrefWidth(500);
-        
-        JFXTextField textFieldSourceAddress = new JFXTextField();
-        textFieldSourceAddress.setPromptText("Source Address");
-        textFieldSourceAddress.setPrefWidth(500);
-        textFieldSourceAddress.setVisible(false);
-        
-        CheckBox checkBoxEnableSourceAddress = new CheckBox("Use different source address");
-        checkBoxEnableSourceAddress.setOnAction(e -> {
-            //Add a listener so that button toggles the visibility of the source text field
-            textFieldSourceAddress.setVisible(!textFieldSourceAddress.isVisible());
-        });
-        
-        JFXTextField textFieldName = new JFXTextField();
-        textFieldName.setPromptText("Package name");
-        textFieldName.setPrefWidth(500);
-
-        //Add type of package
-        Label labelTypePackage = new Label("Type of package: ");
-        labelTypePackage.setPadding(new Insets(10, 0, 0, 20));
-        final ToggleGroup groupTypePackage = new ToggleGroup();
-
-        JFXRadioButton radioFragileTypePackage = new JFXRadioButton("Fragile");
-        radioFragileTypePackage.setPadding(new Insets(10));
-        radioFragileTypePackage.setToggleGroup(groupTypePackage);
-
-        JFXRadioButton radioDurableTypePackage = new JFXRadioButton("Durable");
-        radioDurableTypePackage.setPadding(new Insets(10));
-        radioDurableTypePackage.setToggleGroup(groupTypePackage);
-        
-        JFXRadioButton radioOtherTypePackage = new JFXRadioButton("Other");
-        radioOtherTypePackage.setPadding(new Insets(10));
-        radioOtherTypePackage.setToggleGroup(groupTypePackage);
-        radioOtherTypePackage.setSelected(true);
-        
-        
-        HBox hBoxRadioButtonsTypePackage = new HBox();
-        hBoxRadioButtonsTypePackage.getChildren().addAll(radioFragileTypePackage, 
-                                                         radioDurableTypePackage,  
-                                                         radioOtherTypePackage);
-        
-        //Create a circular button
-        JFXButton buttonHelpTypePackage = new JFXButton("?");
-        buttonHelpTypePackage.setShape(new Circle(buttonRadius));
-        buttonHelpTypePackage.setMinSize(2*buttonRadius, 2*buttonRadius);
-        buttonHelpTypePackage.setMaxSize(2*buttonRadius, 2*buttonRadius);
-
-        HBox hBoxTypePackage = new HBox();
-        hBoxTypePackage.getChildren().addAll(radioFragileTypePackage, 
-                                             radioDurableTypePackage,  
-                                             radioOtherTypePackage,
-                                             buttonHelpTypePackage);
-        //Add popup for the circular question mark button
-        GridPane gridPaneHelpTypePackage = getGridPaneHelpTypePackage();
-        JFXPopup popupHelpTypePackage = new JFXPopup(gridPaneHelpTypePackage); 
-        popupHelpTypePackage.setPrefHeight(100);
-        buttonHelpTypePackage.setOnAction( e-> {
-             popupHelpTypePackage.show(buttonHelpTypePackage, PopupVPosition.TOP, PopupHPosition.LEFT);
-        });
-        
-        //Add type of delivery
-        Label labelTypeDelivery = new Label("Type of delivery: ");
-        labelTypeDelivery.setPadding(new Insets(10, 0, 0, 20));
-        final ToggleGroup groupTypeDelivery = new ToggleGroup();
-
-        JFXRadioButton radioNextDayTypeDelivery = new JFXRadioButton("Next day");
-        radioNextDayTypeDelivery.setPadding(new Insets(10));
-        radioNextDayTypeDelivery.setToggleGroup(groupTypeDelivery);
-
-        JFXRadioButton radioSpeedTypeDelivery = new JFXRadioButton("Speed");
-        radioSpeedTypeDelivery.setPadding(new Insets(10));
-        radioSpeedTypeDelivery.setToggleGroup(groupTypeDelivery);
-        
-        JFXRadioButton radioNormalTypeDelivery = new JFXRadioButton("Normal");
-        radioNormalTypeDelivery.setPadding(new Insets(10));
-        radioNormalTypeDelivery.setToggleGroup(groupTypeDelivery);
-        radioNormalTypeDelivery.setSelected(true);
-
-        HBox hBoxRadioButtonsTypeDelivery = new HBox();
-        hBoxRadioButtonsTypeDelivery.getChildren().addAll(radioNextDayTypeDelivery,
-                                                          radioSpeedTypeDelivery,
-                                                          radioNormalTypeDelivery);
-        
-        JFXButton buttonHelpTypeDelivery = new JFXButton("?");
-        buttonHelpTypeDelivery.setShape(new Circle(buttonRadius));
-        buttonHelpTypeDelivery.setMinSize(2*buttonRadius, 2*buttonRadius);
-        buttonHelpTypeDelivery.setMaxSize(2*buttonRadius, 2*buttonRadius);
-
-        GridPane gridPaneHelpTypeDelivery = getGridPaneHelpTypeDelivery();
-        JFXPopup popupHelpTypeDelivery = new JFXPopup(gridPaneHelpTypeDelivery); 
-        popupHelpTypeDelivery.setPrefHeight(100);
-        buttonHelpTypeDelivery.setOnAction( e-> {
-             popupHelpTypeDelivery.show(buttonHelpTypeDelivery, PopupVPosition.TOP, PopupHPosition.LEFT);
-        });
-        
-        HBox hBoxTypeDelivery = new HBox();
-        hBoxTypeDelivery.getChildren().addAll(radioNextDayTypeDelivery,
-                                             radioSpeedTypeDelivery,
-                                             radioNormalTypeDelivery,
-                                             buttonHelpTypeDelivery);
-        
-        JFXTextArea textAreaOtherDetails = new JFXTextArea();
-        textAreaOtherDetails.setPromptText("Any other details");
-        textAreaOtherDetails.setPrefSize(500, 50);
-        textAreaOtherDetails.setMaxHeight(50);
-        int intMaxCharLimit = 200;
-        //Limit the other details text field to 200 characters 
-        //So that when it will be printed for the delivery boy
-        //It wont go off paper
-        textAreaOtherDetails.setTextFormatter(new TextFormatter<String>(change -> 
-                change.getControlNewText().length() <= intMaxCharLimit ? change : null));
-
-        Label labelPickUpTime = new Label("Preferred time to pickup");
-        JFXTimePicker timePicker = new JFXTimePicker();
-        timePicker.setValue(LocalTime.NOON);
-        
-        JFXButton buttonConfirm = new JFXButton("Confirm");
-	List<Package> listPackage = new ArrayList<Package>();
-
-        buttonConfirm.setOnAction(e -> {
-            boolean enterOrder = true;
-            String hour = Integer.toString(timePicker.getValue().getHour());
-            String minute = Integer.toString(timePicker.getValue().getMinute());
-            
-            String destinationAddress = textFieldDestinationAddress.getText();
-            
-            if(destinationAddress.trim().isEmpty())
-            {
-                JFXPopup popup = Login.showPopup("Please fill the destination address");
-                popup.show(textFieldDestinationAddress, JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.LEFT);
-                enterOrder = false;
-            }
-            String sourceAddress;
-            if(checkBoxEnableSourceAddress.isSelected())
-            {
-                sourceAddress = textFieldSourceAddress.getText();
-                if (sourceAddress.trim().isEmpty())
-	        {
-                    JFXPopup popup = Login.showPopup("Please fill the source address or uncheck the box");
-                    popup.show(textFieldSourceAddress, JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.LEFT);
-                    enterOrder = false;
-                         
-                }
-            }
-            else
-            {
-                /*
-			Get source address from db
-                        =====================
-                        Database support here
-                        =====================
-                */
-            }
-            //All clear get details 
-            String typePackage = ((JFXRadioButton)groupTypePackage.getSelectedToggle()).getText();
-            String typeName = textFieldName.getText();
-	    Package pack = new Package(typePackage, typeName);
-	    listPackage.add(pack);
-
-            String typeDelivery = ((JFXRadioButton)groupTypeDelivery.getSelectedToggle()).getText();
-            
-            String details = textAreaOtherDetails.getText();
-            if(enterOrder)
-            {
-                /*
-                        =====================
-                        Database support here
-                        =====================
-                */
-		JFXButton buttonConfirmOrder = new JFXButton("Confirm");
-                JFXButton buttonAddObject  = new JFXButton("Add");
-                JFXButton buttonClose = new JFXButton("Delete order");
-		GridPane gridPaneConfirm = getConfirmOrderGridPane(buttonConfirmOrder, buttonAddObject, buttonClose);
-		JFXPopup popupConfirm = new JFXPopup(gridPaneConfirm);
-                popupConfirm.setPrefSize(500, 300);
-                //Bounds rootBounds = borderPane.getLayoutBounds();
-		popupConfirm.show(buttonConfirm , JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.LEFT);
-                          // (rootBounds.getWidth() - popupConfirm.getPrefWidth()) / 2,
-                           //(rootBounds.getHeight() - popupConfirm.getPrefHeight()) / 2);
-                
-                
-		buttonAddObject.setOnAction( ev -> {
-	               textFieldSourceAddress.setEditable(false);
-		       textFieldDestinationAddress.setEditable(false);
-		       textAreaOtherDetails.setEditable(false);
-                       groupTypeDelivery.getToggles().forEach(t -> {
-                                Node node = (Node) t;
-                                node.setDisable(true);
-                       });
-                       popupConfirm.hide();
-                       textFieldName.requestFocus();
-                });
-                
-		buttonClose.setOnAction( ev -> {
-	               textFieldSourceAddress.setEditable(true);
-		       textFieldDestinationAddress.setEditable(true);
-		       textAreaOtherDetails.setEditable(true); 
-                       groupTypeDelivery.getToggles().forEach(t -> {
-                                Node node = (Node) t;
-                                node.setDisable(false);
-                       });
-                       popupConfirm.hide();  
-		});
-
-		buttonConfirmOrder.setOnAction( ev -> {
-                /*
-			Get package from `listPackage`
-                        =====================
-                 aaa       Database support here
-                        =====================
-                */
-                        for(Package p: listPackage)
-                        {
-                            System.out.println(p.name+" "+p.typePackage);
-                        }
-	               textFieldSourceAddress.setEditable(true);
-		       textFieldDestinationAddress.setEditable(true);
-		       textAreaOtherDetails.setEditable(true); 
-                       groupTypeDelivery.getToggles().forEach(t -> {
-                                Node node = (Node) t;
-                                node.setDisable(false);
-                       });
-                       popupConfirm.hide();   
-		});
-            }
-           
-        });
-        
-        //Add everything to grid
-        VBox vBox = new VBox(5);
-        vBox.setSpacing(10);
-        vBox.getChildren().addAll(
-                textFieldDestinationAddress,
-                textFieldSourceAddress,
-                checkBoxEnableSourceAddress,
-                textFieldName,
-                labelTypePackage, 
-                hBoxTypePackage,
-                labelTypeDelivery,
-                hBoxTypeDelivery,
-                textAreaOtherDetails,
-                labelPickUpTime,
-                timePicker,
-                buttonConfirm
-                );
-        
-        gridPane.getChildren().addAll(vBox);
-        newOrder.setContent(gridPane);
-    }
-    
-    /*public GridPane getOrderDetails(Order orderSelected, JFXButton showDetails)
-    {
-        
-            Get the order from the Order object and 
-            Display every detail
-        
-               ======================
-               Database support here!
-               ======================
-        
-        GridPane gridOrderDetails = new GridPane();
-        
-        HashMap<String, Label> orderDetails = orderSelected.getDetails();
-        
-        VBox vBox = new VBox();
-        
-        for (HashMap.Entry< String,Label> m:orderDetails.entrySet())
-        {
-           vBox.getChildren().add(m.getValue());
-        }
-        
-        gridOrderDetails.getChildren().addAll(vBox);
-        return gridOrderDetails;
-    }
-    
-    public void historyTabScene()
-    {
-        
-            Make grid for the history tab
-        
-        GridPane gPane = sampleGridPane();
-        gPane.getStyleClass().add("grid-pane");
-
-        Label labelHistory = new Label("Check your history of couriers here!");
-        
-        
-                Add random data for now
-               ======================
-               Database support here!
-               ======================
-        
-        ObservableList<Order> orderList = FXCollections.observableArrayList();
-        orderList.add(new Order("Phone", "123456789", "1", 1, 2));
-        orderList.add(new Order("Letter", "123456789", "2", 1, 3));
-        orderList.add(new Order("Document", "123456789", "3", 2, 1));
-        ListView<Order> listViewOrder = new ListView<Order>(orderList);
-        listViewOrder.getSelectionModel().select(0);
-        
-        //For custom object `Order` as a listview we use cell factory
-        listViewOrder.setCellFactory(param -> new ListCell<Order>() {
-            @Override
-            protected void updateItem(Order item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty || item == null || item.getName() == null) {
-                    setText(null);
-                } else {
-                    setText(item.getName());
-                }
-            }
-        });
-        listViewOrder.setPrefSize(500, 200);
-
-        JFXButton buttonGetDetails = new JFXButton("Find");        
-        
-        //Flow pane is used here for the drawer pane (slider)
-        FlowPane flowPane = new FlowPane();
-        flowPane.setHgap(10);
-        
-        flowPane.getChildren().addAll(labelHistory, listViewOrder, buttonGetDetails);
-        flowPane.setMaxSize(200, 200);
-        
-        JFXDrawer rightDrawer = new JFXDrawer();
-        StackPane rightDrawerPane = new StackPane();
-        rightDrawerPane.getStyleClass().add("blue-400");
-        
-        rightDrawer.setDirection(DrawerDirection.RIGHT);
-        rightDrawer.setDefaultDrawerSize(200);
-        rightDrawer.setSidePane(rightDrawerPane);
-        rightDrawer.setOverLayVisible(false);
-        rightDrawer.setResizableOnDrag(true);
-
-        JFXDrawersStack drawersStack = new JFXDrawersStack();
-        drawersStack.setContent(flowPane);
-
-        
-        buttonGetDetails.setOnAction(e -> {
-            System.out.println("Getting the order details");
-            Order orderSelected = listViewOrder.getSelectionModel().getSelectedItem();
-            GridPane gridShowOrderDetail = getOrderDetails(orderSelected, buttonGetDetails);
-            
-            rightDrawerPane.getChildren().clear();
-            rightDrawerPane.getChildren().add(gridShowOrderDetail);
-            drawersStack.toggle(rightDrawer);
-            
-        });
-        
-        
-        HBox hBox = new HBox();
-        hBox.setSpacing(10);
-        
-        hBox.getChildren().addAll(drawersStack);
-        
-        gPane.getChildren().addAll(hBox);
-
-        history.setContent(gPane);
-    }*/
+    }    
         
     private String[] getLocation(Order order)
     {
@@ -587,64 +225,8 @@ public class HomePageAdmin extends Application {
         String[] locHistory = {"Dispatched", "At the stop", "Reached"};
         return locHistory;
     }
-    /*
-    public void trackingTabScene()
-    {
-        GridPane gPane = sampleGridPane();
-        gPane.getStyleClass().add("grid-pane");
-
-        Label labelTracking = new Label("Track your current order here!");
-        
-        ObservableList<Order> orderList = FXCollections.observableArrayList();
-        
-       
-	To Do: Dynamically change this for getting current order
-               ======================
-               Database support here!
-               ======================	
-	
-        orderList.add(new Order("Phone", "123456789", "1", 1, 2));
-        orderList.add(new Order("Document", "123456789", "1", 2, 3));
-        ListView<Order> listViewOrder = new ListView<Order>(orderList);
-        listViewOrder.getSelectionModel().select(0);
-        
-        //For custom object `Order` as a listview we use cell factory
-        listViewOrder.setCellFactory(param -> new ListCell<Order>() {
-            @Override
-            protected void updateItem(Order item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null || item.getName() == null) {
-                    setText(null);
-                } else {
-                    setText(item.getName());
-                }
-            }
-        });
-        listViewOrder.setPrefSize(500, 200);
-        
-        ObservableList<String> locationList = FXCollections.observableArrayList();
-        locationList.add(new String("Dispatched"));
-        JFXListView<String> listViewLoc = new JFXListView<String>();
-        
-        // For now display text viz. the last known address of the order
-        listViewOrder.setOnMouseClicked( e-> {
-                Order orderSelected = listViewOrder.getSelectionModel().getSelectedItem();
-                String[] locationStringList = getLocation(orderSelected);
-                listViewLoc.getItems().clear();
-                for(String loc: locationStringList)
-                {
-                    listViewLoc.getItems().add(loc);
-                }
-        });
-        
-        HBox hBox = new HBox();
-        hBox.setSpacing(10);
-        hBox.getChildren().addAll(listViewOrder, listViewLoc);
-        gPane.getChildren().addAll(hBox);
-
-        tracking.setContent(gPane);
-    }
-    */
+    
+    
     public GridPane getGridNotifications(JFXDrawersStack drawersStack, JFXDrawer rightDrawerNotifications)
     {
     	/*
@@ -733,12 +315,7 @@ public class HomePageAdmin extends Application {
 
     	Label labelTracking = new Label("Track your current order here!");
     	
-    	
-    	TableView<Users> table = new TableView<Users>();
-        ArrayList<Users> list=new ArrayList<Users>();
-        //list.
-        
-        /*query here for all users */
+    	/*query here for all users */
         st=primaryConn.createStatement();
         ResultSet myRs=st.executeQuery("select * from users");
 		//myStmt.executeQuery("CREATE TABLE IF NOT EXISTS `test` (id int ) ");
@@ -748,27 +325,16 @@ public class HomePageAdmin extends Application {
 			String e=myRs.getString("email");
 			String p=myRs.getString("phone");
 			String loc=myRs.getString("sourceaddress");
-			list.add(new Users(n,e,"",loc,p,null));
+			HomePageAdmin.list_clients.add(new Users(n,e,"",loc,p,null));
+			
 			System.out.println(  "name: "+n/*(new java.util.Date(myRs.getTimestamp("created_at").getTime())).toString()*/ );
 		}
-		
-		
-        //list.add(new Users("tushar","tushar@tushar.com","abcdefgh","mumbai","1234567890",null));
-        //list.add(new Users("tushar","tushar@tushar.com","abcdefgh","mumbai","1234567890",null));
-        //list.add(new Users("tushar","tushar@tushar.com","abcdefgh","mumbai","1234567890",null));
-        ObservableList<Users> data =
-                FXCollections.observableArrayList(list
-                /*new Person("Jacob", "Smith", "jacob.smith@example.com"),
-                new Person("Isabella", "Johnson", "isabella.johnson@example.com"),
-                new Person("Ethan", "Williams", "ethan.williams@example.com"),
-                new Person("Emma", "Jones", "emma.jones@example.com"),
-                new Person("Michael", "Brown", "michael.brown@example.com")*/);
+		HomePageAdmin.data_clients= FXCollections.observableArrayList(HomePageAdmin.list_clients);
+    	TableView<Users> table = new TableView<Users>();
+    	
+        
         final HBox hb = new HBox();
-    	
-    	// For now display text viz. the last known address of the order
-    	
-    	
-    	
+    	  	
     	final Label label = new Label("Details of all Clients ");
     	label.setFont(new Font("Arial", 20));
 
@@ -794,58 +360,21 @@ public class HomePageAdmin extends Application {
     	addrCol.setCellValueFactory(
     			new PropertyValueFactory<Users, String>("sourceAddress"));
 
-    	table.setItems(data);
+    	table.setItems(HomePageAdmin.data_clients);
     	table.getColumns().addAll(firstNameCol, phoneCol, emailCol,addrCol);
     	
-    	/*
-    	final TextField addFirstName = new TextField();
-    	addFirstName.setPromptText("First Name");
-    	addFirstName.setMaxWidth(firstNameCol.getPrefWidth());
-    	final TextField addLastName = new TextField();
-    	addLastName.setMaxWidth(phoneCol.getPrefWidth());
-    	addLastName.setPromptText("Last Name");
-    	final TextField addEmail = new TextField();
-    	addEmail.setMaxWidth(emailCol.getPrefWidth());
-    	addEmail.setPromptText("Email");
-    	final TextField Email = new TextField();
-    	addEmail.setMaxWidth(emailCol.getPrefWidth());
-    	addEmail.setPromptText("Email");
-    	*/
-    	
-    	/* uncomment if adding row needed
-    	final Button addButton = new Button("Add");
-    	addButton.setOnAction(new EventHandler<ActionEvent>() {
-    		@Override
-    		public void handle(ActionEvent e) {
-    			data.add(new (
-    					addFirstName.getText(),
-    					addLastName.getText(),
-    					addEmail.getText()));
-    			addFirstName.clear();
-    			addLastName.clear();
-    			addEmail.clear();
-    		}
-    	});*/
-
-    	//hb.getChildren().addAll(addFirstName, addLastName, addEmail/*, addButton*/);
-    	//hb.setSpacing(3);
 
     	final VBox vbox = new VBox();
     	vbox.setSpacing(5);
     	vbox.setPadding(new Insets(10, 0, 0, 10));
-    	vbox.getChildren().addAll(label, table, hb);
+    	
+    	
+    	vbox.getChildren().addAll(label,table, hb);
 
     	/*make a grid pane and add all vbox */
     	gPane.getChildren().addAll(vbox);
-    	clients.setContent(table);
+    	clients.setContent(gPane);
     	
-    	/*
-    	hBox.setSpacing(10);
-    	hBox.getChildren().addAll(listViewOrder, listViewLoc);
-    	gPane.getChildren().addAll(hBox);
-
-    	tracking.setContent(gPane);
-    	*/
     	} catch(Exception e) {
     		
     	}
@@ -854,52 +383,33 @@ public class HomePageAdmin extends Application {
     public void packetEstimationTabScene() {
     	GridPane gPane = sampleGridPane();
     	gPane.getStyleClass().add("grid-pane");
-
     	Label labelTracking = new Label("Track your current order here!");
-
-
+    	
     	TableView<Order> table = new TableView<Order>();
-    	ArrayList<Order> list=new ArrayList<Order>();
-    	//list.
     	
     	/*query db for the list of all orders of every user*/
     	try{
-	    	st=primaryConn.createStatement();
-	        ResultSet myRs=st.executeQuery("select * from orders where assigned=0");
-			//myStmt.executeQuery("CREATE TABLE IF NOT EXISTS `test` (id int ) ");
-	        System.out.println("query executed");
-			while(myRs.next() ) {
-				String s=myRs.getString("source");String d=myRs.getString("destination");
-				String dtype=myRs.getString("deliveryType");
-				String details=myRs.getString("details");
-				int pr=0;
-				int id=myRs.getInt("orderid");
-				Order o=new Order(s,d,dtype,details,primaryConn);
-				o.setOrderid(id);
-				list.add(o);
-				//System.out.println(  "name: "+n/*(new java.util.Date(myRs.getTimestamp("created_at").getTime())).toString()*/ );
-			}
+    		st=primaryConn.createStatement();
+            ResultSet myRs=st.executeQuery("select * from orders where assigned=0");
+    		//myStmt.executeQuery("CREATE TABLE IF NOT EXISTS `test` (id int ) ");
+            System.out.println("query executed");
+    		while(myRs.next() ) {
+    			String s=myRs.getString("source");String d=myRs.getString("destination");
+    			String dtype=myRs.getString("deliveryType");
+    			String details=myRs.getString("details");
+    			int pr=0;
+    			int id=myRs.getInt("orderid");int u_id=myRs.getInt("userid");
+    			Order o=new Order(s,d,dtype,details,primaryConn);
+    			o.setOrderid(id);
+    			o.setUserid(u_id);
+    			HomePageAdmin.list_orders.add(o);
+    		}
+    		HomePageAdmin.data_order=FXCollections.observableArrayList(list_orders);
+	    	
     	}catch (Exception e) {
     		e.printStackTrace();
     	}
-    	
-    	//list.add(new Order("mumbai","delhi","next day","this is box1",null));
-    	//list.add(new Order("mumbai","delhi","next day","this is box2",null));
-    	//list.add(new Order("mumbai","delhi","next day","this is box3",null));
-    	
-    	ObservableList<Order> data =
-    			FXCollections.observableArrayList(list
-    			/*new Person("Jacob", "Smith", "jacob.smith@example.com"),
-    			new Person("Isabella", "Johnson", "isabella.johnson@example.com"),
-    			new Person("Ethan", "Williams", "ethan.williams@example.com"),
-    			new Person("Emma", "Jones", "emma.jones@example.com"),
-    			new Person("Michael", "Brown", "michael.brown@example.com")*/);
     	final HBox hb = new HBox();
-
-    	// For now display text viz. the last known address of the order
-
-
-
     	final Label label = new Label("Details of all Orders, edit the packet cost ");
     	label.setFont(new Font("Arial", 20));
 
@@ -949,76 +459,92 @@ public class HomePageAdmin extends Application {
     			@Override
     			public void handle(CellEditEvent<Order, Integer> t) {
     				(t.getTableView().getItems().get(
-    					t.getTablePosition().getRow())
-    					).setPrice(t.getNewValue());
+        					t.getTablePosition().getRow())
+        					).setPrice(t.getNewValue());
+    				Order o=(t.getTableView().getItems().get(
+        					t.getTablePosition().getRow())
+        					);
     				
     				/* assign this packet to any available employee
     				 * if any employee is unavailable then bring a pop-up showing all employees are busy.
     				 *  */
-    				Order o=(t.getTableView().getItems().get(
-        					t.getTablePosition().getRow())
-        					);
     				try {
-    				pStmt=primaryConn.prepareStatement("UPDATE orders SET assigned=1 WHERE orderid = ?;" );
-    				pStmt.setInt(1, o.getOrderid());
-    				pStmt.executeUpdate();
-    				
-    				pStmt=primaryConn.prepareStatement("UPDATE userhistory SET price=? WHERE orderid = ?;" );
-    				pStmt.setInt(1,t.getNewValue());
-    				pStmt.setInt(2, o.getOrderid());
-    				pStmt.executeUpdate();
-    				} catch(Exception e) {e.printStackTrace();}
-    				System.out.println("id clicked; "+o.getOrderid());
-    				System.out.println("new price ; "+t.getNewValue());
-    			}
+    				String sql="select * from employee where available=1";
+    				ResultSet rs = st.executeQuery(sql);
+    				int e_id=-1;String e_name="";
+    			      //STEP 5: Extract data from result set
+    				while(rs.next()){
+    					//Retrieve by column name
+    					e_id  = rs.getInt("employeeid");
+    					e_name=rs.getString("employeename");
+    					break;
+    				}
+    			    if(e_id!=-1) {
+    			    	/*insert query in tracking*/
+    			    	pStmt=primaryConn.prepareStatement("insert into tracking(userid,orderid,employeeid,trackingdetail) values (?,?,?,?)");
+    			    	System.out.println("inserting in tracking - userid: "+o.getUserid());
+        		        pStmt.setInt(1, o.getUserid());
+        		        pStmt.setInt(2, o.getOrderid());
+        		        pStmt.setInt(3, e_id);
+        		        pStmt.setString(4, "dispatched");
+        				pStmt.executeUpdate();
+        				
+        				pStmt=primaryConn.prepareStatement("update userhistory set price = ? where orderid = ? ;");
+        				pStmt.setInt(1,t.getNewValue());
+        				pStmt.setInt(2,o.getOrderid());
+        				pStmt.executeUpdate();
+        				
+        				pStmt=primaryConn.prepareStatement("update orders set assigned = 1 where orderid = ? ;");
+        				pStmt.setInt(1,o.getOrderid());
+        				pStmt.executeUpdate();
+        				
+        				pStmt=primaryConn.prepareStatement("update employee set available = 0 where employeeid = ? ;");
+        				pStmt.setInt(1,e_id);
+        				pStmt.executeUpdate();
+        				
+        				final Stage dialog = new Stage();
+	                    dialog.initModality(Modality.APPLICATION_MODAL);
+	                    dialog.initOwner(primaryStage);
+	                    VBox dialogVbox = new VBox(20);
+	                    dialogVbox.getChildren().add(new Text("Successfully alloted to employee: "+e_name));
+	                    Scene dialogScene = new Scene(dialogVbox, 300, 200);
+	                    dialog.setScene(dialogScene);
+	                    dialog.show();	                    
+	                    return;
+        				
+    			    }else {
+    			    	/*error that all employees are currently unavailable try later*/
+    			    	final Stage dialog = new Stage();
+	                    dialog.initModality(Modality.APPLICATION_MODAL);
+	                    dialog.initOwner(primaryStage);
+	                    VBox dialogVbox = new VBox(20);
+	                    dialogVbox.getChildren().add(new Text("ERROR:\n All employees are currently unavailable, try later !!"));
+	                    Scene dialogScene = new Scene(dialogVbox, 300, 200);
+	                    dialog.setScene(dialogScene);
+	                    dialog.show();
+	                    return;
+    			    }
+    				}catch(Exception e) {e.printStackTrace();}
+    				}
+    			
     		}
     	);
 
-    	table.setItems(data);
+    	table.setItems(HomePageAdmin.data_order);
     	table.getColumns().addAll(sourceCol,destCol,delTypeCol,detCol,typeCountCol,priceCol);
-
-    	/*final TextField source_tf = new TextField();
-    	source_tf.setPromptText("Source");
-    	source_tf.setMaxWidth(sourceCol.getPrefWidth());
-    	final TextField dest_tf = new TextField();
-    	dest_tf.setPromptText("Destination");
-    	dest_tf.setMaxWidth(sourceCol.getPrefWidth());
-    	final TextField delType_tf = new TextField();
-    	delType_tf.setPromptText("Delivery Type");
-    	delType_tf.setMaxWidth(sourceCol.getPrefWidth());
-    	final TextField det_tf = new TextField();
-    	det_tf.setPromptText("Details");
-    	det_tf.setMaxWidth(sourceCol.getPrefWidth());
-    	*/
-
-
-    	/* uncomment if adding row needed
-    	final Button addButton = new Button("Add");
-    	addButton.setOnAction(new EventHandler<ActionEvent>() {
-    		@Override
-    		public void handle(ActionEvent e) {
-    			data.add(new Person(
-    					addFirstName.getText(),
-    					addLastName.getText(),
-    					addEmail.getText()));
-    			addFirstName.clear();
-    			addLastName.clear();
-    			addEmail.clear();
-    		}
-    	});*/
-
-    	//hb.getChildren().addAll(addFirstName, addLastName, addEmail/*, addButton*/);
-    	//hb.setSpacing(3);
 
     	final VBox vbox = new VBox();
     	vbox.setSpacing(5);
     	vbox.setPadding(new Insets(10, 0, 0, 10));
+    	
     	vbox.getChildren().addAll(label, table, hb);
 
 
     	gPane.getChildren().addAll(vbox);
     	packetEstimation.setContent(gPane);
     }
+    
+    /*----------------------------------------------------------------------------------------------------------------------------------*/
     
     public void addEmpTabScene() {
     	GridPane gPane = sampleGridPane();
@@ -1028,28 +554,24 @@ public class HomePageAdmin extends Application {
 
 
     	TableView<Employee> table = new TableView<Employee>();
-    	ArrayList<Employee> list=new ArrayList<Employee>();
-    	//list.
     	
     	/*query db for the list of all orders of every user*/
-    	
-    	list.add(new Employee("ramesh","abcdefgh","1234567890","mumbai",true,null));
-    	list.add(new Employee("ramesh","abcdefgh","1234567890","mumbai",true,null));
-    	list.add(new Employee("ramesh","abcdefgh","1234567890","mumbai",true,null));
-    	
-    	ObservableList<Employee> data =
-    			FXCollections.observableArrayList(list
-    			/*new Person("Jacob", "Smith", "jacob.smith@example.com"),
-    			new Person("Isabella", "Johnson", "isabella.johnson@example.com"),
-    			new Person("Ethan", "Williams", "ethan.williams@example.com"),
-    			new Person("Emma", "Jones", "emma.jones@example.com"),
-    			new Person("Michael", "Brown", "michael.brown@example.com")*/);
+		try {
+			ResultSet myRs = st.executeQuery("select * from employee ");
+			while(myRs.next() ) {
+				String s=myRs.getString("employeename");String p=myRs.getString("password");
+				String ph=myRs.getString("phone");
+				String addr=myRs.getString("address");
+				Employee e=new Employee(s,p,ph,addr,true,null);
+				HomePageAdmin.list_employee.add(e);
+				//System.out.println(  "name: "+n/*(new java.util.Date(myRs.getTimestamp("created_at").getTime())).toString()*/ );
+			}
+			HomePageAdmin.data_emp=FXCollections.observableArrayList(list_employee);
+		} catch (Exception e1) {
+			
+			e1.printStackTrace();
+		}
     	final HBox hb = new HBox();
-
-    	// For now display text viz. the last known address of the order
-
-
-
     	final Label label = new Label("Adding and Deleting Employee ");
     	label.setFont(new Font("Arial", 20));
 
@@ -1137,7 +659,7 @@ public class HomePageAdmin extends Application {
     		}
     	);
 
-    	table.setItems(data);
+    	table.setItems(HomePageAdmin.data_emp);
     	table.getColumns().addAll(sourceCol,passCol,destCol,addrCol,detCol);
 
     	final TextField e_name_tf = new TextField();
@@ -1170,15 +692,24 @@ public class HomePageAdmin extends Application {
 	                    Scene dialogScene = new Scene(dialogVbox, 300, 200);
 	                    dialog.setScene(dialogScene);
 	                    dialog.show();
-	                    return;    				
+	                    return;				
     			}
-    			data.add(new Employee(
-    					e_name_tf.getText().toString(),
-    					pass_tf.getText().toString(),
-    					phone_tf.getText().toString(),
-    					addr_tf.getText().toString(),
-    					true,null
-    					));
+    			HomePageAdmin.data_emp.add(new Employee(e_name_tf.getText().toString(), pass_tf.getText().toString(), phone_tf.getText().toString(), addr_tf.getText().toString(),
+    						true,primaryConn));
+    			try{
+    		    	st=primaryConn.createStatement();
+    		        pStmt=primaryConn.prepareStatement("insert into employee(employeename,password,phone,address,available) values (?,?,?,?,?)");
+    		        pStmt.setString(1, e_name_tf.getText().toString());
+    		        pStmt.setString(2, pass_tf.getText().toString());
+    		        pStmt.setString(3, phone_tf.getText().toString());
+    		        pStmt.setString(4, addr_tf.getText().toString());
+    		        pStmt.setBoolean(5, true);
+    				pStmt.executeUpdate();
+    				
+    	    	}catch (Exception ee) {
+    	    		ee.printStackTrace();
+    	    	}
+    			
     			e_name_tf.clear();
     			pass_tf.clear();
     			phone_tf.clear();
@@ -1192,7 +723,8 @@ public class HomePageAdmin extends Application {
     	final VBox vbox = new VBox();
     	vbox.setSpacing(5);
     	vbox.setPadding(new Insets(10, 0, 0, 10));
-    	vbox.getChildren().addAll(label, table, hb);
+    	
+    	vbox.getChildren().addAll(label , table, hb);
 
 
     	gPane.getChildren().addAll(vbox);
@@ -1219,25 +751,21 @@ public class HomePageAdmin extends Application {
         primaryStage = newStage;
         BorderPane borderPane = new BorderPane();
         
-        newOrder = new Tab("New Order");
+        //newOrder = new Tab("New Order");
         //history = new Tab("History");
         //tracking = new Tab("Tracking");
         clients = new Tab("Clients");
         packetEstimation=new Tab("Packet Estimation");
         addEmp=new Tab("Add Employee");
         
-        newOrderTabScene();
-        //historyTabScene();
-        //trackingTabScene();
         clientsTabScene();
         packetEstimationTabScene();
-        //trackingTabScene();
         addEmpTabScene();
         
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         
-        tabPane.getTabs().addAll(newOrder, /*history, tracking,*/ clients, packetEstimation,addEmp);
+        tabPane.getTabs().addAll( clients, packetEstimation,addEmp);
         
         tabPane.getSelectionModel().selectedItemProperty().addListener( (ov, oldTab, newTab) -> {
                 System.out.println(oldTab.getText() + " changed to " + newTab.getText());
@@ -1252,10 +780,7 @@ public class HomePageAdmin extends Application {
         hBox.setPadding(new Insets(2));
 
         hBox.getChildren().addAll(buttonSettings);
-       
-        // Anchor pane is used to keep tabpane and settings button together
-	// HBox cannot be used because button will occupy all space 
-	// below it and it will remain empty
+        
         AnchorPane anchorPane = new AnchorPane();
         AnchorPane.setTopAnchor(buttonSettings, 6.0);
         AnchorPane.setRightAnchor(buttonSettings, 5.0);
@@ -1303,6 +828,19 @@ public class HomePageAdmin extends Application {
         System.out.println("end of makeScene of homepageadmin");
         return borderPane;
     }
+    
+    public static void refresh_clients() throws SQLException {
+    	
+    }
+    public static void refresh_orders() throws SQLException {
+    	
+    	
+    }
+    public static void refresh_employee() throws SQLException {
+    	
+		
+    }
+    
     
     @Override
     public void start(Stage stage) {
